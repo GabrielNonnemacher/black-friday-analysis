@@ -195,3 +195,8 @@ df_resultados = df_resultados.sort_values(by="F1-score", ascending=False)
 
 print("\n===== RESULTADOS FINAIS =====")
 print(df_resultados)
+
+
+# intervalos entre as categorias BAIXA, MEDIA e ALTA
+limites = pd.qcut(df["valor_compra"], q=3).unique()
+print(limites)
