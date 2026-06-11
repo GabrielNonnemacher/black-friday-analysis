@@ -96,7 +96,7 @@ Comparação geral
 
 Clone o repositório
 
-git clone https://github.com/seu-usuario/black-friday-customer-analysis
+git clone [https://github.com/GabrielNonnemacher/black-friday-analysis](https://github.com/GabrielNonnemacher/black-friday-analysis)
 
 Instale as dependências
 
