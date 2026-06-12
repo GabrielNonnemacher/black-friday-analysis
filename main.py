@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import time
+import random
 
 from sklearn.model_selection import train_test_split
 from sklearn.compose import ColumnTransformer
@@ -45,12 +46,18 @@ resumo_segmentos = (
 
 print(resumo_segmentos)
 
-df["faixa_gasto"] = pd.qcut(
-    df["valor_compra"],
-    q=3,
-    labels=["Baixo", "Médio", "Alto"]
-)
+p33 = df["valor_compra"].quantile(0.33)
+p66 = df["valor_compra"].quantile(0.66)
+max_valor = df["valor_compra"].max()
 
+print(f"Cortes usados → Baixo: até {p33:.2f} | Médio: até {p66:.2f} | Alto: até {max_valor:.2f}")
+
+df["faixa_gasto"] = pd.cut(
+    df["valor_compra"],
+    bins=[0, p33, p66, max_valor],
+    labels=["Baixo", "Médio", "Alto"],
+    include_lowest=True
+)
 target = "faixa_gasto"
 
 print("\n===== DISTRIBUIÇÃO DA NOVA CLASSE =====")
@@ -95,7 +102,7 @@ print(colunas_categoricas)
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
-    test_size=0.3,
+    test_size=random.random(),
     random_state=42,
     stratify=y
 )
@@ -193,10 +200,25 @@ for nome_modelo, pipeline in modelos.items():
 df_resultados = pd.DataFrame(resultados)
 df_resultados = df_resultados.sort_values(by="F1-score", ascending=False)
 
+# intervalos entre as categorias BAIXA, MEDIA e ALTA
+# Explicacao do metodo utilizado está no relatorio, 2.4
+p33 = df["valor_compra"].quantile(0.33)
+p66 = df["valor_compra"].quantile(0.66)
+max_valor = df["valor_compra"].max()
+
+limites = pd.DataFrame({
+    "Faixa": ["Baixo", "Médio", "Alto"],
+    "Limite inferior (R$)": [0, p33, p66],
+    "Limite superior (R$)": [p33, p66, max_valor]
+})
+
+limites["Limite inferior (R$)"] = limites["Limite inferior (R$)"].map(lambda x: f"{x:,.2f}")
+limites["Limite superior (R$)"] = limites["Limite superior (R$)"].map(lambda x: f"{x:,.2f}")
+
+print("\n===== INTERVALOS DAS FAIXAS DE GASTO =====")
+print(limites.to_string(index=False))
+
 print("\n===== RESULTADOS FINAIS =====")
 print(df_resultados)
 
 
-# intervalos entre as categorias BAIXA, MEDIA e ALTA
-limites = pd.qcut(df["valor_compra"], q=3).unique()
-print(limites)
